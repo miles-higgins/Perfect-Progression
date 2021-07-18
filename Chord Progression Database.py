@@ -18,21 +18,18 @@ class Progression:
 
 
 def build_progression_tree(root_directory):
-    # want to supply the program with a folder, traverse through and build up the trees
-    # this has subfolders sorted by genre
-    # these subfolders have subfolders sorted by song section (exceptnot all do)
-    # these subfolders have subfolders sorted by major or minor (except not all do)
-    # these subfolders have subfolders have subfolders sorted by key
     for root, dirs, files in os.walk(root_directory, topdown=True):
         for name in files:
             print(os.path.join(root, name))
-        for name in dirs:
-            print(os.path.join(root, name))
-
-        # if midi file, open
+            print(find_chord_progression(os.path.join(root, name)))
+            # if midi file, open
             # if first chord isn't a pre-exiting tree, create it
             # if subsequent chord isn't in tree yet, add to tree
             # if reach end of progression, add tags
+        for name in dirs:
+            print(os.path.join(root, name))
+
+
 
     return
 
@@ -43,7 +40,10 @@ def find_chord_progression(midi_filename):
     mf.open(midi_filename)
     mf.read()
     # convert MIDI file to stream
-    midi_stream = midi.translate.midiFileToStream(mf)
+    try:
+        midi_stream = midi.translate.midiFileToStream(mf)
+    except:  # fixme
+        print('incorrect midi file')
 
     # chordify the midi stream
     chords = midi_stream.chordify()
