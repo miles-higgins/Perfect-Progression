@@ -11,25 +11,25 @@ class Chord:
 
 
 class Progression:
-    def __init__(self, genre, tonality, song_section=None):
+    def __init__(self, progression_array, genre, tonality, song_section=None):
+        self.progression_array = progression_array
         self.song_section = song_section
         self.tonality = tonality
         self.genre = genre
 
 
 def build_progression_tree(root_directory):
+    current_genre = None
+    current_tonality = None
+    current_song_section = None
     for root, dirs, files in os.walk(root_directory, topdown=True):
+        print(dirs)
         for name in files:
-            print(os.path.join(root, name))
-            print(find_chord_progression(os.path.join(root, name)))
-            # if midi file, open
+            progression = Progression(find_chord_progression(os.path.join(root, name)), current_genre,
+                                                             current_tonality, current_song_section)
             # if first chord isn't a pre-exiting tree, create it
             # if subsequent chord isn't in tree yet, add to tree
             # if reach end of progression, add tags
-        for name in dirs:
-            print(os.path.join(root, name))
-
-
 
     return
 
@@ -57,5 +57,5 @@ def find_chord_progression(midi_filename):
     return progression
 
 
-print(find_chord_progression('sample 1126.mid'))
-# print(build_progression_tree('Compressed Chord Templates'))
+# print(find_chord_progression('sample 116.mid'))
+print(build_progression_tree('Compressed Chord Templates'))
