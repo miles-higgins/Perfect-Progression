@@ -22,8 +22,10 @@ def build_progression_tree(root_directory):
     current_genre = None
     current_tonality = None
     current_song_section = None
+    current_root_key = None
     for root, dirs, files in os.walk(root_directory, topdown=True):
-        print(dirs)
+        update_tags(root, current_tonality, current_genre,
+                    current_song_section, current_root_key)  # updates genre, tonality etc. tags for current folder
         for name in files:
             progression = Progression(find_chord_progression(os.path.join(root, name)), current_genre,
                                                              current_tonality, current_song_section)
@@ -57,5 +59,40 @@ def find_chord_progression(midi_filename):
     return progression
 
 
+def update_tags(root, tonality=None, genre=None, song_section=None, root_key=None):
+    folder_history = root.split("\\")  # split directory path by backslash
+    most_recent_folder = folder_history[-1]
+
+    # if we're in a new genre folder (of the format 'Genre-X Templates Pack'
+    if 'Templates' in most_recent_folder:
+        most_recent_folder.split()
+        genre = most_recent_folder[0]
+
+    # if we're in a new key folder
+    if 'Major' in most_recent_folder:
+        tonality = 'Major'
+        root_key = most_recent_folder.split()[0]  # update root_key  (not sure if this assignment will work)
+    elif 'Minor' in most_recent_folder:
+        tonality = 'Minor'
+        root_key = most_recent_folder.split()[0]
+
+    # find song section
+    if 'Chord Progressions' in most_recent_folder:
+        song_section_lst = most_recent_folder.split()
+        song_section = ''
+        # build up string of words describing the song section
+        for i in range(len(song_section_lst) - 1):
+            song_section_lst.append(song_section_lst[i])
+
+        # if there was no song section
+        if song_section is '':
+            song_section = None
+
+    return tonality, genre, song_section, root_key
+
+
 # print(find_chord_progression('sample 116.mid'))
 print(build_progression_tree('Compressed Chord Templates'))
+
+# chord templates pack = genre
+# chord progressions =
