@@ -11,11 +11,12 @@ class Chord:
 
 
 class Progression:
-    def __init__(self, progression_array, genre, tonality, song_section=None):
-        self.progression_array = progression_array
+    def __init__(self, chord_array, genre, tonality, song_section=None, root_key):
+        self.chord_array = chord_array
         self.song_section = song_section
         self.tonality = tonality
         self.genre = genre
+        self.root_key = root_key
 
 
 def build_progression_tree(root_directory):
@@ -26,10 +27,14 @@ def build_progression_tree(root_directory):
     for root, dirs, files in os.walk(root_directory, topdown=True):
         current_genre, current_tonality, current_song_section, current_root_key = \
             update_tags(root, current_tonality, current_genre, current_song_section, current_root_key)  # update tags
-        print(current_genre, current_tonality, current_song_section, current_root_key)
         for name in files:
             progression = Progression(find_chord_progression(os.path.join(root, name)), current_genre,
-                                                             current_tonality, current_song_section)
+                                                             current_tonality, current_song_section, current_root_key)
+
+            # turn the chords in the progression into Chord objects
+            for i in range(len(progression.chord_array)):
+                progression.chord_array[i] = Chord(progression.chord_array[i], progression)
+
             # if first chord isn't a pre-exiting tree, create it
             # if subsequent chord isn't in tree yet, add to tree
             # if reach end of progression, add tags
