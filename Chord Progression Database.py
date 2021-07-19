@@ -24,8 +24,9 @@ def build_progression_tree(root_directory):
     current_song_section = None
     current_root_key = None
     for root, dirs, files in os.walk(root_directory, topdown=True):
-        update_tags(root, current_tonality, current_genre,
-                    current_song_section, current_root_key)  # updates genre, tonality etc. tags for current folder
+        current_genre, current_tonality, current_song_section, current_root_key = \
+            update_tags(root, current_tonality, current_genre, current_song_section, current_root_key)  # update tags
+        print(current_genre, current_tonality, current_song_section, current_root_key)
         for name in files:
             progression = Progression(find_chord_progression(os.path.join(root, name)), current_genre,
                                                              current_tonality, current_song_section)
@@ -65,9 +66,7 @@ def update_tags(root, tonality=None, genre=None, song_section=None, root_key=Non
 
     # if we're in a new genre folder (of the format 'Genre-X Templates Pack'
     if 'Templates' in most_recent_folder:
-        most_recent_folder.split()
-        genre = most_recent_folder[0]
-
+        genre = most_recent_folder.split()[0]
     # if we're in a new key folder
     if 'Major' in most_recent_folder:
         tonality = 'Major'
@@ -77,22 +76,22 @@ def update_tags(root, tonality=None, genre=None, song_section=None, root_key=Non
         root_key = most_recent_folder.split()[0]
 
     # find song section
-    if 'Chord Progressions' in most_recent_folder:
+    if 'Chord Progres' in most_recent_folder:
         song_section_lst = most_recent_folder.split()
         song_section = ''
         # build up string of words describing the song section
-        for i in range(len(song_section_lst) - 1):
-            song_section_lst.append(song_section_lst[i])
+        for i in range(len(song_section_lst) - 2):
+            song_section = song_section + song_section_lst[i] + ' '
 
         # if there was no song section
         if song_section is '':
             song_section = None
 
-    return tonality, genre, song_section, root_key
+    return genre, tonality, song_section, root_key
 
 
 # print(find_chord_progression('sample 116.mid'))
-print(build_progression_tree('Compressed Chord Templates'))
+print(build_progression_tree('Compressed Chord Database'))
 
 # chord templates pack = genre
 # chord progressions =
