@@ -1,7 +1,7 @@
 import music21
 import os
 from music21 import *
-from anytree import Node, RenderTree
+from anytree import Anynode, RenderTree
 
 
 class Chord:
@@ -11,7 +11,7 @@ class Chord:
 
 
 class Progression:
-    def __init__(self, chord_array, genre, tonality, song_section=None, root_key):
+    def __init__(self, chord_array, genre, tonality, root_key, song_section=None):
         self.chord_array = chord_array
         self.song_section = song_section
         self.tonality = tonality
@@ -20,10 +20,12 @@ class Progression:
 
 
 def build_progression_tree(root_directory):
+    root = Anynode()
     current_genre = None
     current_tonality = None
     current_song_section = None
     current_root_key = None
+
     for root, dirs, files in os.walk(root_directory, topdown=True):
         current_genre, current_tonality, current_song_section, current_root_key = \
             update_tags(root, current_tonality, current_genre, current_song_section, current_root_key)  # update tags
@@ -35,10 +37,26 @@ def build_progression_tree(root_directory):
             for i in range(len(progression.chord_array)):
                 progression.chord_array[i] = Chord(progression.chord_array[i], progression)
 
-            # if first chord isn't a pre-exiting tree, create it
-            # if subsequent chord isn't in tree yet, add to tree
-            # if reach end of progression, add tags
+            current_node = root
+            for chrd in progression.chord_array:
+                chord_name = chrd.chord_name
+                # if chord isn't a child of current node, make it a child
+                if chord_name not in current_node.children:  # FIXME
+                    new_child = Anynode(chrd)
+                    new_child.parent = current_node
+                    current_node = new_child
+                # if chord already a child, make that the current node
+                else:
+                    children = current_node.children
+                    for child in children:
+                        chrd = child
 
+                # if we use AnyNode class there is no default identifier, we have to define
+                # or we can use Node class, which has a default identifier which is the name
+
+
+                # add genre tags
+                # maybe have a dictionary of genre tags, can look them up to filter?
     return
 
 
